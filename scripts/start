@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+#!export HISTORY_TABLE=networth-HistoryTable-J9JBBZZP175U
+
+sam local start-api

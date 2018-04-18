@@ -1,0 +1,102 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Random Quotes API Lambda
+Resources:
+  ApiGatewayApi:
+    Properties:
+      CacheClusterEnabled: false
+      DefinitionBody:
+        info:
+          title:
+            Ref: AWS::StackName
+        paths:
+          /api/{proxy+}:
+            options:
+              consumes:
+              - application/json
+              produces:
+              - application/json
+              responses:
+                '200':
+                  description: 200 response
+                  headers:
+                    Access-Control-Allow-Headers:
+                      type: string
+                    Access-Control-Allow-Methods:
+                      type: string
+                    Access-Control-Allow-Origin:
+                      type: string
+                  schema:
+                    $ref: '#/definitions/Empty'
+              x-amazon-apigateway-integration:
+                passthroughBehavior: when_no_match
+                requestTemplates:
+                  application/json: '{"statusCode": 200}'
+                responses:
+                  default:
+                    responseParameters:
+                      method.response.header.Access-Control-Allow-Headers: '''Content-Type,Authorization,X-Amz-Date,X-Api-Key,X-Amz-Security-Token'''
+                      method.response.header.Access-Control-Allow-Methods: '''DELETE,GET,HEAD,OPTIONS,PATCH,POST,PUT'''
+                      method.response.header.Access-Control-Allow-Origin: '''*'''
+                    statusCode: 200
+                type: mock
+            x-amazon-apigateway-any-method:
+              responses: {}
+              x-amazon-apigateway-integration:
+                httpMethod: POST
+                type: aws_proxy
+                uri:
+                  Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${RandomQuotesAPIFunction.Arn}/invocations
+        swagger: 2.0
+      Name: randomquotes-api
+      StageName: prod
+    Type: AWS::Serverless::Api
+  QuotesTable:
+    Properties:
+      PrimaryKey:
+        Name: key
+        Type: String
+      ProvisionedThroughput:
+        ReadCapacityUnits: 1
+        WriteCapacityUnits: 1
+    Type: AWS::Serverless::SimpleTable
+  RandomQuotesAPIFunction:
+    Properties:
+      CodeUri: s3://randomquotes-api/randomquotes-api/10470524c925128e6b4fb829728fb375
+      Description: Random Quotes API Lambda
+      Events:
+        GetApiProxyResource:
+          Properties:
+            Method: any
+            Path: /api/{proxy+}
+            RestApiId:
+              Ref: ApiGatewayApi
+          Type: Api
+      FunctionName: randomquotes-api
+      Handler: index.handler
+      MemorySize: 128
+      Policies: AmazonDynamoDBFullAccess
+      Role:
+        Fn::GetAtt:
+        - RandomQuotesLambdaRole
+        - Arn
+      Runtime: nodejs6.10
+      Timeout: 300
+    Type: AWS::Serverless::Function
+  RandomQuotesLambdaRole:
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+        - Action:
+          - sts:AssumeRole
+          Effect: Allow
+          Principal:
+            Service:
+            - lambda.amazonaws.com
+          Sid: AllowLambdaServiceToAssumeRole
+        Version: '2012-10-17'
+      ManagedPolicyArns:
+      - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      - arn:aws:iam::aws:policy/AmazonDynamoDBFullAccess
+      Path: /
+    Type: AWS::IAM::Role
+Transform: AWS::Serverless-2016-10-31
