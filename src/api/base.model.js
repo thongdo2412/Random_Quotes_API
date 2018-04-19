@@ -23,7 +23,6 @@ class BaseModel {
       TableName: this.tableName,
       Item: _.extend({'key': key, 'added_date': added_date}, data)
     }
-    console.log(params)
     this.log.debug(`BaseModel.put(): params: ${JSON.stringify(params)}`)
 
     return db.put(params).promise()
@@ -37,6 +36,14 @@ class BaseModel {
     return db.scan(params).promise()
   }
 
+  // implement delete
+  delete (conditions) {
+    const params = _.extend({TableName: this.tableName}, conditions)
+
+    this.log.debug(`BaseModel.delete(): params: ${JSON.stringify(params)}`)
+
+    return db.delete(params).promise()
+  }
 }
 
 module.exports = BaseModel

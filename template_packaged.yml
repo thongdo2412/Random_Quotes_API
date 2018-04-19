@@ -61,7 +61,7 @@ Resources:
     Type: AWS::Serverless::SimpleTable
   RandomQuotesAPIFunction:
     Properties:
-      CodeUri: s3://randomquotes-api/randomquotes-api/10470524c925128e6b4fb829728fb375
+      CodeUri: s3://randomquotes-api/randomquotes-api/608f338f063450370bc387dbb3826806
       Description: Random Quotes API Lambda
       Events:
         GetApiProxyResource:
