@@ -1,27 +1,30 @@
 const config = require('../config/quotes')
-const AWS = config.AWS
-const log = config.log
 const moment = require('moment')
 const _ = require('lodash')
+// const Promise = require('bluebird')
+// const { getUUID } = require('./helpers/utils')
+
+const AWS = config.AWS
+const log = config.log
 const db = new AWS.DynamoDB.DocumentClient()
-const Promise = require('bluebird')
-const { getUUID } = require('./helpers/utils')
 
 class BaseModel {
-  constructor () {
+  constructor() {
     this.config = config
     this.log = log
     this.tableName = this.config.db.tables.quotes.name
     this.partitionKey = this.config.db.tables.quotes.partition
-    // this.sortKey = this.config.db.tables.quotes.sort
+    this.sortKey = this.config.db.tables.quotes.sort
   }
 
   put (data) {
-    const key = getUUID()
     const added_date = moment().utc().format()
     const params = {
       TableName: this.tableName,
-      Item: _.extend({'key': key, 'added_date': added_date}, data)
+      Item: { 'quote': data.quote, 'author': data.author, 'added_date': added_date },
+      ConditionExpression: "#quote <> :quote",
+      ExpressionAttributeNames: { "#quote": "quote" },
+      ExpressionAttributeValues: { ":quote": data.quote }
     }
     this.log.debug(`BaseModel.put(): params: ${JSON.stringify(params)}`)
 
@@ -36,7 +39,6 @@ class BaseModel {
     return db.scan(params).promise()
   }
 
-  // implement delete
   delete (conditions) {
     const params = _.extend({TableName: this.tableName}, conditions)
 

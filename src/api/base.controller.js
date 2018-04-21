@@ -1,16 +1,16 @@
-const {responseSuccess, responseError} = require('./helpers/responses')
+const { responseSuccess, responseError } = require('./helpers/responses')
 const log = require('../config/quotes').log
 
 class BaseController {
-  constructor () {
+  constructor() {
     this.log = log
   }
 
-  success (req, body) {
+  success(req, body) {
     return responseSuccess(req, body)
   }
 
-  error (req, body) {
+  error(req, body) {
     this.log.error(body)
     return responseError(req, body)
   }

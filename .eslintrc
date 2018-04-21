@@ -1,0 +1,12 @@
+{
+  "extends": "airbnb",
+  "rules": {
+    "max-len": "warn",
+    "semi": "warn",
+    "comma-dangle": "warn",
+    "no-return-assign": ["error", "except-parens"]
+  },
+  "env": {
+    "mocha": true
+  }
+}

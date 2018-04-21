@@ -21,7 +21,7 @@ class QuotesController extends BaseController {
     .catch(err => this.error(res, err))
   }
 
-    query_attr(req, res) {
+  query_attr(req, res) {
     return this.model.scan_attr(req.body)
     .then(data => this.success(res, data))
     .catch(err => this.error(res, err))

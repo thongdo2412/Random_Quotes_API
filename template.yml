@@ -79,7 +79,7 @@ Resources:
     Properties:
       FunctionName: randomquotes-api
       Handler: index.handler
-      Runtime: nodejs6.10
+      Runtime: nodejs8.10
       CodeUri: .
       Description: Random Quotes API Lambda
       MemorySize: 128
@@ -98,7 +98,7 @@ Resources:
     Type: AWS::Serverless::SimpleTable
     Properties:
       PrimaryKey:
-        Name: key
+        Name: quote
         Type: String
       ProvisionedThroughput:
         ReadCapacityUnits: 1

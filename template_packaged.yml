@@ -53,7 +53,7 @@ Resources:
   QuotesTable:
     Properties:
       PrimaryKey:
-        Name: key
+        Name: quote
         Type: String
       ProvisionedThroughput:
         ReadCapacityUnits: 1
@@ -61,7 +61,7 @@ Resources:
     Type: AWS::Serverless::SimpleTable
   RandomQuotesAPIFunction:
     Properties:
-      CodeUri: s3://randomquotes-api/randomquotes-api/608f338f063450370bc387dbb3826806
+      CodeUri: s3://randomquotes-api/randomquotes-api/aa6373e81c6d29f012ff886a5d6b8de0
       Description: Random Quotes API Lambda
       Events:
         GetApiProxyResource:
@@ -79,7 +79,7 @@ Resources:
         Fn::GetAtt:
         - RandomQuotesLambdaRole
         - Arn
-      Runtime: nodejs6.10
+      Runtime: nodejs8.10
       Timeout: 300
     Type: AWS::Serverless::Function
   RandomQuotesLambdaRole:

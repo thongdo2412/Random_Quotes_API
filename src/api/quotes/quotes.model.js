@@ -5,9 +5,7 @@ const _ = require('lodash')
 class QuotesModel extends BaseModel {
   // get random item
   get() {
-    const lastKeyEvaluated = {
-      'key': getUUID()
-    }
+    const lastKeyEvaluated = { 'quote': getUUID() }
 
     const conditions = {
       ExclusiveStartKey: lastKeyEvaluated,
@@ -25,12 +23,8 @@ class QuotesModel extends BaseModel {
   scan_attr(params) {
     const conditions = {
       FilterExpression: "contains( #attr , :str)",
-      ExpressionAttributeNames: {
-        "#attr": params.attribute
-      },
-      ExpressionAttributeValues: {
-        ":str": params.input_str
-      }
+      ExpressionAttributeNames: { "#attr": params.attribute },
+      ExpressionAttributeValues: { ":str": params.input_str }
     }
 
     return this.scan(conditions)    

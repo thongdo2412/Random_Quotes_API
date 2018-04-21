@@ -18,7 +18,7 @@ module.exports = {
     tables: {
       quotes: {
         name: process.env.QUOTES_TABLE,
-        partition: 'key',
+        partition: 'quote',
         sort: ''
       }
     }
