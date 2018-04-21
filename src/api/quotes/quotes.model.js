@@ -30,10 +30,10 @@ class QuotesModel extends BaseModel {
     return this.scan(conditions)    
   }
 
-  pop(key){
-    const params = {Key: key}
-    return this.delete(params)
-  }
+  // pop(key){
+  //   const params = {Key: key}
+  //   return this.delete(params)
+  // }
 
 }
 

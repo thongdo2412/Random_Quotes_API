@@ -5,7 +5,6 @@ module.exports = (router) => {
   router.get('/quote', (req, res) => controller.get(req, res)) 
   router.post('/quote', (req, res) => controller.post(req, res))
   router.post('/scanquotes', (req, res) => controller.query_attr(req, res))
-  router.post('/deletequote', (req, res) => controller.delete(req, res))
 
   return router
 }
