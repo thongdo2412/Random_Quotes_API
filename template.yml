@@ -35,6 +35,17 @@ Resources:
         swagger: 2.0
         info:
           title: !Ref AWS::StackName
+        securityDefinitions:
+          randomquotes-cognito-authorizer:
+            type: apiKey
+            name: Authorization
+            in: header
+            x-amazon-apigateway-authtype: cognito_user_pools
+            x-amazon-apigateway-authorizer:
+              providerARNs:
+                - !GetAtt UserPool.Arn
+              # - ${stageVariables.UserPoolArn}
+              type: cognito_user_pools  
         paths:
           /api/{proxy+}:
             x-amazon-apigateway-any-method:
@@ -73,6 +84,51 @@ Resources:
                 requestTemplates:
                   application/json: "{\"statusCode\": 200}"
                 type: mock
+
+  UserPool:
+    Type: AWS::Cognito::UserPool
+    Properties:
+      UserPoolName: RandomquotesPool
+      AutoVerifiedAttributes:
+        - email
+      EmailVerificationSubject: 'Welcome to Random Quotes!'
+      EmailConfiguration:
+        ReplyToEmailAddress: dhthong@gmail.com
+      Policies:
+        PasswordPolicy:
+          MinimumLength: 8
+          RequireLowercase: true
+          RequireUppercase: true
+          RequireNumbers: true
+          RequireSymbols: true
+
+  UserPoolClient:
+    Type: AWS::Cognito::UserPoolClient
+    Properties:
+      ClientName: randomquotes-ui
+      GenerateSecret: false
+      UserPoolId: !Ref UserPool
+
+  CognitoIdentityPool:
+    Type: AWS::Cognito::IdentityPool
+    Properties:
+      IdentityPoolName: randomquotes
+      AllowUnauthenticatedIdentities: true
+      DeveloperProviderName: randomquotes
+      CognitoIdentityProviders:
+        -
+          ClientId: !Ref UserPoolClient
+          ProviderName: !Sub
+            - cognito-idp.us-east-1.amazonaws.com/${UserPoolId}
+            - { UserPoolId: !Ref UserPool }
+
+  CognitoIdentityPoolRole:
+    Type: "AWS::Cognito::IdentityPoolRoleAttachment"
+    Properties:
+      IdentityPoolId: !Ref CognitoIdentityPool
+      Roles:
+        authenticated: !GetAtt RandomQuotesLambdaRole.Arn
+        unauthenticated: !GetAtt RandomQuotesLambdaRole.Arn
 
   RandomQuotesAPIFunction:
     Type: AWS::Serverless::Function

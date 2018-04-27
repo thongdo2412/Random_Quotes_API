@@ -8,7 +8,7 @@
     "url": "https://github.com/thongdo2412/randomquotes-api"
   },
   "scripts": {
-    "watch": "./scripts/start",
+    "start": "./scripts/start",
     "deploy": "./scripts/deploy",
     "lint": "eslint *.js src/* test/*",
     "test": "yarn lint && nyc mocha",
@@ -17,6 +17,7 @@
     "tail": "awslogs get /aws/lambda/randomquotes-api ALL --watch --aws-region=us-east-1"
   },
   "dependencies": {
+    "async-parallel": "^1.2.3",
     "aws-sam-local": "0.2.4",
     "aws-sdk": "^2.125.0",
     "aws-serverless-express": "^3.0.2",

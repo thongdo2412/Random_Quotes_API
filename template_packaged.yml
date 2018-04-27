@@ -46,10 +46,50 @@ Resources:
                 type: aws_proxy
                 uri:
                   Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${RandomQuotesAPIFunction.Arn}/invocations
+        securityDefinitions:
+          randomquotes-cognito-authorizer:
+            in: header
+            name: Authorization
+            type: apiKey
+            x-amazon-apigateway-authorizer:
+              providerARNs:
+              - Fn::GetAtt:
+                - UserPool
+                - Arn
+              type: cognito_user_pools
+            x-amazon-apigateway-authtype: cognito_user_pools
         swagger: 2.0
       Name: randomquotes-api
       StageName: prod
     Type: AWS::Serverless::Api
+  CognitoIdentityPool:
+    Properties:
+      AllowUnauthenticatedIdentities: true
+      CognitoIdentityProviders:
+      - ClientId:
+          Ref: UserPoolClient
+        ProviderName:
+          Fn::Sub:
+          - cognito-idp.us-east-1.amazonaws.com/${UserPoolId}
+          - UserPoolId:
+              Ref: UserPool
+      DeveloperProviderName: randomquotes
+      IdentityPoolName: randomquotes
+    Type: AWS::Cognito::IdentityPool
+  CognitoIdentityPoolRole:
+    Properties:
+      IdentityPoolId:
+        Ref: CognitoIdentityPool
+      Roles:
+        authenticated:
+          Fn::GetAtt:
+          - RandomQuotesLambdaRole
+          - Arn
+        unauthenticated:
+          Fn::GetAtt:
+          - RandomQuotesLambdaRole
+          - Arn
+    Type: AWS::Cognito::IdentityPoolRoleAttachment
   QuotesTable:
     Properties:
       PrimaryKey:
@@ -61,7 +101,7 @@ Resources:
     Type: AWS::Serverless::SimpleTable
   RandomQuotesAPIFunction:
     Properties:
-      CodeUri: s3://randomquotes-api/randomquotes-api/93304b315ea0e09c0dc3e7fc534aa432
+      CodeUri: s3://randomquotes-api/randomquotes-api/a62bdf5f7aaadbb0054e527376b00de0
       Description: Random Quotes API Lambda
       Events:
         GetApiProxyResource:
@@ -99,4 +139,27 @@ Resources:
       - arn:aws:iam::aws:policy/AmazonDynamoDBFullAccess
       Path: /
     Type: AWS::IAM::Role
+  UserPool:
+    Properties:
+      AutoVerifiedAttributes:
+      - email
+      EmailConfiguration:
+        ReplyToEmailAddress: dhthong@gmail.com
+      EmailVerificationSubject: Welcome to Random Quotes!
+      Policies:
+        PasswordPolicy:
+          MinimumLength: 8
+          RequireLowercase: true
+          RequireNumbers: true
+          RequireSymbols: true
+          RequireUppercase: true
+      UserPoolName: RandomquotesPool
+    Type: AWS::Cognito::UserPool
+  UserPoolClient:
+    Properties:
+      ClientName: randomquotes-ui
+      GenerateSecret: false
+      UserPoolId:
+        Ref: UserPool
+    Type: AWS::Cognito::UserPoolClient
 Transform: AWS::Serverless-2016-10-31
